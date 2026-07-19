@@ -9,6 +9,7 @@ import notFound from "./middleware/notFound.middleware";
 import { register } from "./metrics/metrics";
 
 import authRoutes from "./routes/auth.routes";
+import deploymentRoutes from "./routes/deployment.routes";
 
 const app = express();
 
@@ -23,6 +24,10 @@ app.use(express.json());
 app.use("/api", healthRoutes);
 
 app.use("/api/auth", authRoutes);
+app.use(
+    "/api/deployments",
+    deploymentRoutes
+);
 
 app.get("/metrics", async (_, res) => {
   res.set("Content-Type", register.contentType);
