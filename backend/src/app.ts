@@ -10,6 +10,11 @@ import { register } from "./metrics/metrics";
 
 import authRoutes from "./routes/auth.routes";
 import deploymentRoutes from "./routes/deployment.routes";
+import dashboardRoutes from "./routes/dashboard.routes";
+import {
+    swaggerUi,
+    swaggerDocument
+} from "./config/swagger";
 
 const app = express();
 
@@ -27,6 +32,15 @@ app.use("/api/auth", authRoutes);
 app.use(
     "/api/deployments",
     deploymentRoutes
+);
+app.use(
+    "/api/dashboard",
+    dashboardRoutes
+);
+app.use(
+    "/docs",
+    swaggerUi.serve,
+    swaggerUi.setup(swaggerDocument)
 );
 
 app.get("/metrics", async (_, res) => {
