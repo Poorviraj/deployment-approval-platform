@@ -1,15 +1,72 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  DEVELOPER
+}
+
+enum DeploymentStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum Environment {
+  DEVELOPMENT
+  STAGING
+  PRODUCTION
+}
+
+model User {
+  id          String   @id @default(cuid())
+  name        String
+  email       String   @unique
+  password    String
+  role        Role
+  createdAt   DateTime @default(now())
+
+  requestedDeployments Deployment[] @relation("RequestedBy")
+  approvedDeployments  Deployment[] @relation("ApprovedBy")
+}
+
+model Deployment {
+  id            String @id @default(cuid())
+
+  serviceName   String
+  version       String
+
+  environment   Environment
+
+  status        DeploymentStatus @default(PENDING)
+
+  requestedById String
+  approvedById  String?
+
+  createdAt DateTime @default(now())
+
+  requestedBy User @relation("RequestedBy", fields: [requestedById], references: [id])
+
+  approvedBy User? @relation("ApprovedBy", fields: [approvedById], references: [id])
+
+  history DeploymentHistory[]
+}
+
+model DeploymentHistory {
+
+  id String @id @default(cuid())
+
+  action String
+
+  deploymentId String
+
+  deployment Deployment @relation(fields: [deploymentId], references: [id])
+
+  createdAt DateTime @default(now())
 }
